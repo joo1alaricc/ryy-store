@@ -2897,6 +2897,7 @@
             document.getElementById("view-catalog").classList.remove("hidden");
             document.getElementById("view-admin").classList.add("hidden");
             document.getElementById("view-profile").classList.add("hidden");
+            setUserFloatingToolsVisible(true);
 
             document.getElementById("store-name-display").innerText = storeText("name") || "RYY STORE";
             document.getElementById("store-slogan-display").innerText = storeText("slogan") || "";
@@ -2906,6 +2907,7 @@
             renderProducts("Semua");
             setDynamicGreeting();
             updateProfileDashboard();
+            refreshCurrentUserSession().catch(() => {});
         }
 
         function launchAdminApp(adminData) {
@@ -2917,7 +2919,7 @@
             document.getElementById("view-settings")?.classList.add("hidden");
             document.getElementById("view-admin").classList.remove("hidden");
             document.getElementById("floating-user-nav")?.classList.add("hidden");
-            document.getElementById("ai-fab")?.classList.add("hidden");
+            setUserFloatingToolsVisible(false);
 
             document.getElementById("store-name-display").innerText = "RYY STORE [ADMIN PANEL]";
             document.getElementById("store-slogan-display").innerText = `Logged in as @${adminData.username}`;
@@ -3502,23 +3504,56 @@
         }
 
         function updateProfileDashboard() {
-            const currentUser = JSON.parse(localStorage.getItem("current_user"));
+            let currentUser = null;
+            try { currentUser = JSON.parse(localStorage.getItem("current_user") || "null"); } catch (_) {}
             if (!currentUser) return;
 
-            document.getElementById("dash-username").innerText = `@${currentUser.username}`;
+            const username = String(currentUser.username || currentUser.email?.split("@")[0] || "Pengguna");
+            const displayName = String(currentUser.displayName || username || "Pengguna");
 
-            // Kontak utama mengikuti metode login yang tersimpan di database.
-            // Google/email -> tampilkan email, login HP -> tampilkan nomor HP.
-            // `contact` tetap dipakai sebagai fallback untuk sesi lama.
-            const primaryContact = currentUser.email || currentUser.phone || currentUser.contact || currentUser.googleEmail || "-";
-            document.getElementById("dash-email").innerText = primaryContact;
-            document.getElementById("dash-secondary-contact").innerText = currentUser.secondaryContact || "Belum Ditambahkan";
-            document.getElementById("dash-total-items").innerText = `${currentUser.totalItemsBought || 0} Item`;
-            document.getElementById("dash-total-spent").innerText = `Rp${(currentUser.totalMoneySpent || 0).toLocaleString('id-ID')}`;
+            // Kontak utama mengikuti data sesi yang dikirim API.
+            // Email/Google -> email, login HP -> nomor HP, lalu fallback sesi lama.
+            const primaryContact = String(currentUser.email || currentUser.phone || currentUser.contact || currentUser.googleEmail || "-");
 
-            const isEmailInitial = primaryContact.includes('@');
-            document.getElementById("add-contact-title").innerText = isEmailInitial ? "Tambah Nomor Telepon Alternatif" : "Tambah Email Alternatif";
-            document.getElementById("profile-new-contact-input").placeholder = isEmailInitial ? "Masukkan Nomor Telepon Baru" : "Masukkan Email Baru";
+            const dashUsername = document.getElementById("dash-username");
+            const dashEmail = document.getElementById("dash-email");
+            const profileName = document.getElementById("profile-display-name");
+            const profileEmail = document.getElementById("profile-display-email");
+            const avatarWrap = document.getElementById("profile-avatar-wrap");
+            const removeAvatarBtn = document.getElementById("remove-avatar-btn");
+
+            if (dashUsername) dashUsername.textContent = `@${username}`;
+            if (dashEmail) dashEmail.textContent = primaryContact;
+            if (profileName) profileName.textContent = displayName;
+            if (profileEmail) profileEmail.textContent = primaryContact;
+
+            if (avatarWrap) {
+                const avatar = String(currentUser.avatar || "").trim();
+                if (/^(https?:\/\/|data:image\/)/i.test(avatar)) {
+                    avatarWrap.classList.remove("profile-avatar-empty");
+                    avatarWrap.innerHTML = `<img src="${escapeHtml(avatar)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">`;
+                    if (removeAvatarBtn) removeAvatarBtn.classList.remove("hidden");
+                } else {
+                    avatarWrap.classList.add("profile-avatar-empty");
+                    avatarWrap.textContent = username.slice(0, 1).toUpperCase() || "?";
+                    if (removeAvatarBtn) removeAvatarBtn.classList.add("hidden");
+                }
+            }
+
+            const secondary = document.getElementById("dash-secondary-contact");
+            const totalItems = document.getElementById("dash-total-items");
+            const totalSpent = document.getElementById("dash-total-spent");
+            if (secondary) secondary.textContent = currentUser.secondaryContact || "Belum Ditambahkan";
+            if (totalItems) totalItems.textContent = `${Number(currentUser.totalItemsBought || 0)} Item`;
+            if (totalSpent) totalSpent.textContent = `Rp${Number(currentUser.totalMoneySpent || 0).toLocaleString("id-ID")}`;
+
+            const isEmailInitial = primaryContact.includes("@");
+            const addTitle = document.getElementById("add-contact-title");
+            const newContactInput = document.getElementById("profile-new-contact-input");
+            if (addTitle) addTitle.textContent = isEmailInitial ? "Tambah Nomor Telepon Alternatif" : "Tambah Email Alternatif";
+            if (newContactInput) newContactInput.placeholder = isEmailInitial ? "Masukkan Nomor Telepon Baru" : "Masukkan Email Baru";
+
+            updateInboxBadge();
         }
 
         function legacy_changePassword() {
@@ -3564,9 +3599,18 @@
             return data;
         }
 
+        function setUserFloatingToolsVisible(visible) {
+            const inbox = document.getElementById("inbox-fab");
+            const ai = document.getElementById("ai-fab");
+            if (inbox) inbox.classList.toggle("hidden", !visible);
+            if (ai) ai.classList.toggle("hidden", !visible);
+        }
+
         function saveUserSession(user, token) {
             localStorage.setItem("current_user", JSON.stringify(user));
             if (token) localStorage.setItem("auth_token", token);
+            setUserFloatingToolsVisible(true);
+            updateProfileDashboard();
             updateInboxBadge();
             if (typeof startSupportPolling === "function") startSupportPolling();
         }
@@ -3574,6 +3618,7 @@
         function clearUserSession() {
             localStorage.removeItem("current_user");
             localStorage.removeItem("auth_token");
+            setUserFloatingToolsVisible(false);
         }
 
         function showAuthStep(id) {
