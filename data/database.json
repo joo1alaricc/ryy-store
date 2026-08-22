@@ -121,55 +121,7 @@
           "purchaseId": "purchase_3f6e4308-1583-4428-8a19-2a94b6f410cb"
         }
       ],
-      "inbox": [
-        {
-          "id": "msg_d1983d1a-f2d3-467d-b9ec-3f1e6c721ce1",
-          "type": "success",
-          "read": true,
-          "createdAt": "2026-08-21T13:02:28.506Z",
-          "title": "Data produk sudah dikirim",
-          "body": "Data berhasil di kirim ke ryydigitalstore@gmail.com, silakan cek.",
-          "purchaseId": "purchase_3f6e4308-1583-4428-8a19-2a94b6f410cb"
-        },
-        {
-          "id": "msg_858f2586-b136-4495-9d87-4f56cb293a1e",
-          "type": "success",
-          "read": true,
-          "createdAt": "2026-08-21T13:02:25.688Z",
-          "title": "Pesanan berhasil dikonfirmasi",
-          "body": "Pesanan Anda berhasil dikonfirmasi oleh admin.",
-          "purchaseId": "purchase_3f6e4308-1583-4428-8a19-2a94b6f410cb"
-        },
-        {
-          "id": "msg_a6778add-bd0e-4f9e-892d-bb62830111b7",
-          "type": "form",
-          "read": true,
-          "createdAt": "2026-08-21T13:01:13.215Z",
-          "title": "Lengkapi data pesanan",
-          "body": "Admin meminta Anda melengkapi data berikut. Tekan tombol di bawah untuk mengisi form.",
-          "purchaseId": "purchase_3f6e4308-1583-4428-8a19-2a94b6f410cb",
-          "fields": [
-            {
-              "key": "email",
-              "label": "Email"
-            },
-            {
-              "key": "emailPassword",
-              "label": "Password Email"
-            }
-          ],
-          "responded": false
-        },
-        {
-          "id": "msg_088b3b47-5ac9-4e60-b3a7-e79f250f91af",
-          "type": "info",
-          "read": true,
-          "createdAt": "2026-08-21T12:59:24.079Z",
-          "title": "Pesanan masuk sesi menunggu",
-          "body": "Bukti pembayaran berhasil diterima. Pesanan Anda sedang menunggu pemeriksaan admin.",
-          "purchaseId": "purchase_3f6e4308-1583-4428-8a19-2a94b6f410cb"
-        }
-      ]
+      "inbox": []
     },
     {
       "id": "user_3653d942-363f-42b4-a703-13000d1f057c",
