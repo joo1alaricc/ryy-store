@@ -20,7 +20,7 @@
           "text": "halo admin",
           "createdAt": "2026-08-22T08:21:38.656Z",
           "readByUser": true,
-          "readByAdmin": false
+          "readByAdmin": true
         }
       ],
       "updatedAt": "2026-08-22T08:21:38.656Z"
