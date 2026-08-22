@@ -158,7 +158,7 @@
         {
           "id": "msg_0511c6db-738f-409e-ad7f-315f78b39635",
           "type": "info",
-          "read": false,
+          "read": true,
           "createdAt": "2026-08-22T11:02:26.377Z",
           "title": "Pesanan masuk sesi menunggu",
           "body": "Bukti pembayaran berhasil diterima. Pesanan Anda sedang menunggu pemeriksaan admin.",
