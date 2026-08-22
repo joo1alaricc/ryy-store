@@ -1,6 +1,6 @@
 {
   "maintenance": false,
-  "uiMode": "liquid-glass",
+  "uiMode": "blur",
   "font": {
     "family": "san-francisco",
     "weight": 700
