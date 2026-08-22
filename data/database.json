@@ -14,7 +14,8 @@
       "reseller": false,
       "subscriptions": [],
       "pendingPurchases": [],
-      "inbox": []
+      "inbox": [],
+      "supportRequests": []
     },
     {
       "id": "user_ae7d7ad1-b406-4186-ae91-b2fa2d892dbc",
@@ -101,7 +102,7 @@
           "id": "sub_c1608c04-32de-4c05-a0b4-d72449350dc8",
           "productName": "Canva Premium",
           "typeName": "Member 1 Bulan",
-          "durationDays": 1.00625,
+          "durationDays": 30,
           "purchasedAt": "2026-08-20T14:33:40.185Z",
           "expiresAt": "2026-08-22T10:42:57.244Z",
           "status": "active",
@@ -121,7 +122,8 @@
           "purchaseId": "purchase_3f6e4308-1583-4428-8a19-2a94b6f410cb"
         }
       ],
-      "inbox": []
+      "inbox": [],
+      "supportRequests": []
     },
     {
       "id": "user_3653d942-363f-42b4-a703-13000d1f057c",
@@ -141,7 +143,8 @@
       "reseller": false,
       "subscriptions": [],
       "pendingPurchases": [],
-      "inbox": []
+      "inbox": [],
+      "supportRequests": []
     },
     {
       "id": "user_ea4f2b72-bd23-4ab9-ad3c-44a9115147a3",
@@ -161,7 +164,8 @@
       "reseller": false,
       "subscriptions": [],
       "pendingPurchases": [],
-      "inbox": []
+      "inbox": [],
+      "supportRequests": []
     },
     {
       "id": "user_b91d5808-f6e2-4dc7-9955-4ce7444b2e6c",
@@ -178,10 +182,11 @@
       "totalMoneySpent": 0,
       "createdAt": "2026-08-21T10:06:20.636Z",
       "authProvider": "google",
-      "reseller": false,
+      "reseller": true,
       "subscriptions": [],
       "pendingPurchases": [],
-      "inbox": []
+      "inbox": [],
+      "supportRequests": []
     },
     {
       "id": "user_2082c518-b924-4925-a79b-fa6bdb6b93e9",
@@ -293,7 +298,8 @@
           "body": "Bukti pembayaran berhasil diterima. Pesanan Anda sedang menunggu pemeriksaan admin.",
           "purchaseId": "purchase_ad08cd7c-1372-466c-9df9-01bbf6e36fa1"
         }
-      ]
+      ],
+      "supportRequests": []
     },
     {
       "reseller": false,
@@ -308,7 +314,8 @@
       "totalItemsBought": 0,
       "totalMoneySpent": 0,
       "createdAt": "2026-08-21T12:00:11.881Z",
-      "inbox": []
+      "inbox": [],
+      "supportRequests": []
     }
   ],
   "settings": {
