@@ -62,7 +62,7 @@
         {
           "id": "msg_aa650c3c-94c1-4169-9e94-ab837bc8a059",
           "type": "success",
-          "read": false,
+          "read": true,
           "createdAt": "2026-08-22T11:13:45.158Z",
           "title": "Pesanan berhasil dikonfirmasi",
           "body": "Pesanan Anda berhasil dikonfirmasi oleh admin.",
@@ -71,7 +71,7 @@
         {
           "id": "msg_5858831f-f86e-477f-a52f-d8f68fcf5c15",
           "type": "info",
-          "read": false,
+          "read": true,
           "createdAt": "2026-08-22T11:13:32.363Z",
           "title": "Pesanan masuk sesi menunggu",
           "body": "Bukti pembayaran berhasil diterima. Pesanan Anda sedang menunggu pemeriksaan admin.",
