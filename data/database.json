@@ -182,7 +182,7 @@
       "totalMoneySpent": 0,
       "createdAt": "2026-08-21T10:06:20.636Z",
       "authProvider": "google",
-      "reseller": true,
+      "reseller": false,
       "subscriptions": [],
       "pendingPurchases": [],
       "inbox": [],
