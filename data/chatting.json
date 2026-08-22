@@ -1,3 +1,20 @@
 {
-  "conversations": {}
+  "conversations": {
+    "ryydigitalstore@gmail.com": {
+      "email": "ryydigitalstore@gmail.com",
+      "username": "ryydigitalstore",
+      "messages": [
+        {
+          "id": "chat_93fd12b3-a983-414c-a7b2-8e3705ea4a62",
+          "sender": "user",
+          "senderName": "ryydigitalstore",
+          "text": "hai",
+          "createdAt": "2026-08-22T08:05:52.487Z",
+          "readByUser": true,
+          "readByAdmin": false
+        }
+      ],
+      "updatedAt": "2026-08-22T08:05:52.487Z"
+    }
+  }
 }
