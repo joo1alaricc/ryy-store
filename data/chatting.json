@@ -12,9 +12,18 @@
           "createdAt": "2026-08-22T08:05:52.487Z",
           "readByUser": true,
           "readByAdmin": true
+        },
+        {
+          "id": "chat_0102d42a-9b58-4bab-88f7-dd60fba59c79",
+          "sender": "user",
+          "senderName": "ryydigitalstore",
+          "text": "halo admin",
+          "createdAt": "2026-08-22T08:21:38.656Z",
+          "readByUser": true,
+          "readByAdmin": false
         }
       ],
-      "updatedAt": "2026-08-22T08:05:52.487Z"
+      "updatedAt": "2026-08-22T08:21:38.656Z"
     }
   }
 }
