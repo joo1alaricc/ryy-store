@@ -2506,7 +2506,7 @@
             initGoogleSignIn();
         }
 
-        function openProductDetailFromPortfolio(productId) {
+        function legacy_openProductDetailFromPortfolio(productId) {
             localStorage.setItem("has_seen_landing", "true");
             document.getElementById("landing-section").classList.add("hidden");
             document.getElementById("app-section").classList.remove("hidden");
@@ -2773,7 +2773,7 @@
             }
         }
 
-        function checkSessionState() {
+        function legacy_checkSessionState() {
             const currentUser = JSON.parse(localStorage.getItem("current_user"));
             const currentAdmin = JSON.parse(localStorage.getItem("current_admin"));
             const hasSeenLanding = localStorage.getItem("has_seen_landing");
@@ -2799,7 +2799,7 @@
             }
         }
 
-        async function handleLogin(event) {
+        async function legacy_handleLogin(event) {
             event.preventDefault();
             if (currentLoginRole === 'admin') {
                 const userOrEmail = document.getElementById('admin-username').value.trim();
@@ -2923,9 +2923,10 @@
             document.getElementById("store-slogan-display").innerText = `Logged in as @${adminData.username}`;
             document.getElementById("admin-identity").innerText = `@${adminData.username}`;
             loadUserTableForAdmin();
+            loadAdminPendingPurchases();
         }
 
-        function loadUserTableForAdmin() {
+        function legacy_loadUserTableForAdmin() {
             const tbody = document.getElementById('userTableBody');
             tbody.innerHTML = '';
             let registeredUsers = JSON.parse(localStorage.getItem('registered_users')) || [];
@@ -2954,7 +2955,7 @@
             });
         }
 
-        function saveUserByAdmin(index) {
+        function legacy_saveUserByAdmin(index) {
             let registeredUsers = JSON.parse(localStorage.getItem('registered_users')) || [];
             registeredUsers[index].username = document.getElementById(`username_${index}`).value;
             registeredUsers[index].contact = document.getElementById(`contact_${index}`).value;
@@ -2967,7 +2968,7 @@
             loadUserTableForAdmin();
         }
 
-        async function deleteUserByAdmin(index) {
+        async function legacy_deleteUserByAdmin(index) {
             if (await iosConfirm('Yakin ingin menghapus akun user ini dari sistem?', {title:'Hapus akun', okText:'Hapus', danger:true})) {
                 let registeredUsers = JSON.parse(localStorage.getItem('registered_users')) || [];
                 registeredUsers.splice(index, 1);
@@ -3050,7 +3051,7 @@
             }
         }
 
-        function sendOTP() {
+        function legacySendOTP() {
             const contact=document.getElementById("contact-input")?.value.trim();
             if(!contact){ iosAlert("Kontak wajib diisi!"); return; }
             if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)){ iosAlert("Format email tidak valid!"); return; }
@@ -3061,7 +3062,7 @@
             console.info("RYY STORE registration OTP:",generatedOTP);
         }
 
-        function verifyOTP() {
+        function legacyVerifyOTP() {
             const userOTP = document.getElementById("otp-input").value.trim();
             if (userOTP === generatedOTP) {
                 document.getElementById("step-otp").classList.remove("active");
@@ -3072,7 +3073,7 @@
             }
         }
 
-        function registerAccount() {
+        function legacy_registerAccount() {
             const username = document.getElementById("username-input").value.trim();
             const password = document.getElementById("password-input").value;
             const contact = document.getElementById("contact-input").value.trim();
@@ -3103,7 +3104,7 @@
             checkSessionState();
         }
 
-        function logoutAccount() {
+        function legacy_logoutAccount() {
             localStorage.removeItem("current_user");
             localStorage.removeItem("current_admin");
             localStorage.removeItem("has_seen_landing");
@@ -3111,7 +3112,7 @@
             checkSessionState();
         }
 
-        function sendProfileOTP() {
+        function legacy_sendProfileOTP() {
             const newContact=document.getElementById("profile-new-contact-input")?.value.trim();
             if(!newContact){ iosAlert("Masukkan kontak baru!"); return; }
             const currentUser=JSON.parse(localStorage.getItem("current_user")||"null");
@@ -3126,7 +3127,7 @@
             console.info("RYY STORE profile OTP:",profileOTP);
         }
 
-        function verifyAndSaveProfileContact() {
+        function legacy_verifyAndSaveProfileContact() {
             const userOTP = document.getElementById("profile-otp-input").value.trim();
             const newContact = document.getElementById("profile-new-contact-input").value.trim();
 
@@ -3484,7 +3485,7 @@
             document.getElementById("qris-zoom-modal").classList.add("hidden");
         }
 
-        function recordPurchase() {
+        function legacy_recordPurchase() {
             let totalCount = 0, grandTotal = 0;
             cart.filter(i => i.selected).forEach(item => { totalCount += item.quantity; grandTotal += (item.price * item.quantity); });
 
@@ -3520,7 +3521,7 @@
             document.getElementById("profile-new-contact-input").placeholder = isEmailInitial ? "Masukkan Nomor Telepon Baru" : "Masukkan Email Baru";
         }
 
-        function changePassword() {
+        function legacy_changePassword() {
             const oldPass = document.getElementById("old-password").value;
             const newPass = document.getElementById("new-password").value;
             let currentUser = JSON.parse(localStorage.getItem("current_user"));
@@ -3800,34 +3801,41 @@
         }
 
         async function loadUserTableForAdmin() {
-            const tbody = document.getElementById("userTableBody");
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>';
+            const list = document.getElementById("admin-user-list");
+            if (!list) return;
+            list.innerHTML = '<div class="admin-config-note">Memuat data user...</div>';
             try {
                 const token = localStorage.getItem("admin_token");
-                const response = await fetch(`${API_BASE}/admin-users`, { headers: { Authorization: `Bearer ${token}` } });
-                const data = await response.json();
+                if (!token) throw new Error("Sesi admin tidak ditemukan. Silakan login admin kembali.");
+                const response = await fetch(`${API_BASE}/admin-users`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
+                const data = await response.json().catch(() => ({}));
                 if (!response.ok) throw new Error(data.message || "Gagal mengambil data user.");
-                if (!data.users.length) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Belum ada user terdaftar.</td></tr>';
+                window.__adminUsers = Array.isArray(data.users) ? data.users : [];
+                if (!window.__adminUsers.length) {
+                    list.innerHTML = '<div class="admin-config-note" style="padding:18px 4px;text-align:center;">Belum ada user terdaftar.</div>';
                     return;
                 }
-                data.users.forEach((user, index) => {
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `
-                        <td><input type="text" id="username_${index}" value="${escapeHtml(user.username)}"></td>
-                        <td><input type="text" id="contact_${index}" value="${escapeHtml(user.email || user.phone || "")}"></td>
-                        <td><input type="number" id="items_${index}" value="${Number(user.totalItemsBought || 0)}" style="width: 70px;"></td>
-                        <td><input type="number" id="spent_${index}" value="${Number(user.totalMoneySpent || 0)}" style="width: 100px;"></td>
-                        <td><div style="display:flex;gap:4px;">
-<button onclick="saveUserByAdmin(${index})" class="btn-admin-action btn-admin-save">Simpan</button>
-<button onclick="deleteUserByAdmin(${index})" class="btn-admin-action btn-admin-del">Hapus</button></div></td>`;
-                    tr.dataset.userId = user.id;
-                    tbody.appendChild(tr);
-                });
-                window.__adminUsers = data.users;
+                list.innerHTML = window.__adminUsers.map((user, index) => {
+                    const subs = Array.isArray(user.subscriptions) ? user.subscriptions : [];
+                    const activeSubs = subs.filter(s => s.status !== "inactive" && (!s.expiresAt || new Date(s.expiresAt).getTime() > Date.now())).length;
+                    const contact = user.email || user.phone || user.secondaryContact || "-";
+                    return `<button type="button" class="admin-user-card" onclick="openAdminUserDetail(${index})" style="width:100%;text-align:left;border:1px solid var(--glass-border);color:inherit;cursor:pointer;">
+                        <div style="display:flex;align-items:center;gap:11px;">
+                            <div class="profile-avatar" style="width:48px;height:48px;flex:0 0 48px;overflow:hidden;">${user.avatar ? `<img src="${escapeHtml(user.avatar)}" alt="" style="width:100%;height:100%;object-fit:cover;">` : escapeHtml(String(user.displayName || user.username || "U").slice(0,1).toUpperCase())}</div>
+                            <div style="min-width:0;flex:1;"><strong style="display:block;font-size:.8rem;">@${escapeHtml(user.username || "user")}</strong><small style="display:block;color:var(--text-muted);font-size:.62rem;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(contact)}</small></div>
+                            <span style="color:var(--accent);font-size:1.1rem;">›</span>
+                        </div>
+                        <div class="admin-product-meta" style="margin-top:10px;">
+                            <span class="admin-chip">${Number(user.totalItemsBought || 0)} item</span>
+                            <span class="admin-chip">${rupiah(user.totalMoneySpent || 0)}</span>
+                            <span class="admin-chip">${activeSubs} langganan aktif</span>
+                            ${user.reseller ? '<span class="admin-chip" style="color:var(--accent);">Reseller</span>' : ''}
+                        </div>
+                    </button>`;
+                }).join("");
             } catch (error) {
                 console.error(error);
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#ff6b6b;">${escapeHtml(error.message)}</td></tr>`;
+                list.innerHTML = `<div style="padding:12px;color:#ff7b7b;font-size:.68rem;">${escapeHtml(error.message)}</div>`;
             }
         }
 
@@ -3838,36 +3846,20 @@
         async function saveUserByAdmin(index) {
             const user = window.__adminUsers?.[index];
             if (!user) return;
-            try {
-                const token = localStorage.getItem("admin_token");
-                const response = await fetch(`${API_BASE}/admin-users`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                    body: JSON.stringify({
-                        userId: user.id,
-                        username: document.getElementById(`username_${index}`).value.trim(),
-                        email: document.getElementById(`contact_${index}`).value.trim(),
-                        totalItemsBought: Number(document.getElementById(`items_${index}`).value) || 0,
-                        totalMoneySpent: Number(document.getElementById(`spent_${index}`).value) || 0
-                    })
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.message || "Gagal memperbarui user.");
-                showToast("Data user berhasil diperbarui!");
-                loadUserTableForAdmin();
-            } catch (error) { console.error(error); iosAlert(error.message); }
+            openAdminUserDetail(index);
         }
 
         async function deleteUserByAdmin(index) {
             const user = window.__adminUsers?.[index];
-            if (!user || !(await iosConfirm(`Hapus akun @${user.username}?`, {title:'Hapus akun', okText:'Hapus', danger:true}))) return;
+            if (!user || !(await iosConfirm(`Hapus akun @${user.username}?`, { title: "Hapus akun", okText: "Hapus", danger: true }))) return;
             try {
                 const token = localStorage.getItem("admin_token");
                 const response = await fetch(`${API_BASE}/admin-users?userId=${encodeURIComponent(user.id)}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
-                const data = await response.json();
+                const data = await response.json().catch(() => ({}));
                 if (!response.ok) throw new Error(data.message || "Gagal menghapus user.");
                 showToast("Akun user dihapus.");
-                loadUserTableForAdmin();
+                document.getElementById("admin-user-detail-overlay")?.classList.add("hidden");
+                await loadUserTableForAdmin();
             } catch (error) { console.error(error); iosAlert(error.message); }
         }
 
@@ -3880,9 +3872,232 @@
             openProductDetail(productId);
         }
 
+        // ===== RESTORED CORE PRODUCT / SESSION / ADMIN FUNCTIONS =====
+        function adminEditIcon() {
+            return '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 16.5V20h3.5L18.3 9.2l-3.5-3.5L4 16.5Zm15.7-9.8c.4-.4.4-1 0-1.4l-1-1a1 1 0 0 0-1.4 0l-1.7 1.7 3.5 3.5 1.6-1.8Z" fill="currentColor"/></svg>';
+        }
+
+        function getProductById(productId) {
+            return (Array.isArray(storeData?.products) ? storeData.products : []).find(p => Number(p.id) === Number(productId)) || null;
+        }
+
+        function openProductDetail(productId) {
+            const product = getProductById(productId);
+            const modal = document.getElementById("product-detail-modal");
+            if (!product || !modal) return;
+            currentActiveProduct = product;
+            selectedProductType = null;
+            const name = productText(product, "name");
+            const desc = productText(product, "description");
+            const img = document.getElementById("modal-prod-img");
+            document.getElementById("modal-prod-name").textContent = name || "Produk";
+            document.getElementById("modal-prod-desc").textContent = desc || "";
+            if (img) { img.src = product.image || ""; img.alt = name || "Produk"; }
+            const types = Array.isArray(product.types) ? product.types : [];
+            const list = document.getElementById("modal-type-list");
+            const stock = types.reduce((sum, type) => sum + Math.max(0, Math.floor(Number(type.stock) || 0)), 0);
+            document.getElementById("modal-prod-stock").textContent = `Stok tersedia: ${stock}`;
+            list.innerHTML = types.length ? types.map((type, index) => {
+                const disabled = Math.max(0, Math.floor(Number(type.stock) || 0)) <= 0;
+                const typeName = type.i18n?.[currentLanguage]?.typeName || type.typeName || "Varian";
+                const price = resellerPrice(Number(type.price || 0));
+                return `<button type="button" class="type-option ${disabled ? 'disabled' : ''}" ${disabled ? 'disabled' : ''} onclick="selectProductType(this,${index})">
+                    <span><strong>${escapeHtml(typeName)}</strong><small>${disabled ? 'Stok habis' : `${Number(type.stock)} stok · ${type.durationDays ? `${Number(type.durationDays)} hari` : 'Lifetime'}`}</small></span>
+                    <b>${rupiah(price)}</b>
+                </button>`;
+            }).join("") : '<div class="empty-state">Varian produk belum tersedia.</div>';
+            const firstAvailable = types.findIndex(t => Number(t.stock || 0) > 0);
+            if (firstAvailable >= 0) {
+                const button = list.querySelectorAll(".type-option")[firstAvailable];
+                if (button) { button.classList.add("selected"); selectedProductType = types[firstAvailable]; }
+            }
+            modal.classList.remove("hidden");
+            document.getElementById("floating-user-nav")?.classList.add("modal-hidden-ui");
+            document.getElementById("ai-fab")?.classList.add("modal-hidden-ui");
+        }
+
+        function addSelectedProductToCart(buyNow=false) {
+            if (!currentActiveProduct || !selectedProductType) {
+                iosAlert("Pilih varian produk terlebih dahulu.");
+                return;
+            }
+            const type = selectedProductType;
+            const stock = Math.max(0, Math.floor(Number(type.stock) || 0));
+            if (stock <= 0) { iosAlert("Varian ini sedang habis."); return; }
+            const basePrice = Math.max(0, Number(type.price) || 0);
+            const price = resellerPrice(basePrice);
+            const key = `${currentActiveProduct.id}::${type.typeName}`;
+            const existing = cart.find(item => item.cartItemId === key);
+            if (existing) {
+                if (existing.quantity >= stock) { iosAlert("Jumlah melebihi stok yang tersedia."); return; }
+                existing.quantity += 1;
+                existing.selected = true;
+            } else {
+                cart.push({
+                    cartItemId:key,
+                    id:Number(currentActiveProduct.id),
+                    name:productText(currentActiveProduct,"name") || currentActiveProduct.name,
+                    typeName:type.typeName,
+                    quantity:1,
+                    price,
+                    basePrice,
+                    stock,
+                    durationDays:type.durationDays ?? null,
+                    selected:true
+                });
+            }
+            updateCartUI();
+            toggleProductDetail();
+            if (buyNow) {
+                document.getElementById("cart-modal")?.classList.remove("hidden");
+                document.body.classList.add("modal-open");
+            } else {
+                showToast("Produk ditambahkan ke keranjang.");
+            }
+        }
+
+        async function completeCheckout(targetPhone, paymentMethod, proofUrl) {
+            const selectedItems = cart.filter(item => item.selected);
+            if (!selectedItems.length) throw new Error("Pilih minimal satu produk.");
+            const payload = {
+                targetPhone:String(targetPhone || "").trim(),
+                paymentMethod:String(paymentMethod || "").trim(),
+                proofUrl:String(proofUrl || "").trim(),
+                items:selectedItems.map(item => ({ id:Number(item.id), typeName:String(item.typeName || ""), quantity:Number(item.quantity || 1) }))
+            };
+            const data = await apiRequest("/checkout", { method:"POST", body:JSON.stringify(payload) });
+            if (data.user) saveUserSession(data.user, localStorage.getItem("auth_token"));
+            return data;
+        }
+
+        async function refreshCurrentUserSession() {
+            const token = localStorage.getItem("auth_token");
+            if (!token) throw new Error("Sesi user tidak ditemukan. Silakan login kembali.");
+            const response = await fetch(`${API_BASE}/me?ts=${Date.now()}`, { headers:{ Authorization:`Bearer ${token}`, Accept:"application/json" }, cache:"no-store" });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                if (response.status === 401) {
+                    clearUserSession();
+                    checkSessionState();
+                    throw new Error("Sesi user tidak valid atau sudah kedaluwarsa. Silakan login kembali.");
+                }
+                throw new Error(data.message || "Gagal memuat sesi user.");
+            }
+            saveUserSession(data.user, token);
+            updateProfileDashboard();
+            if (typeof renderProfileSubscriptions === "function") renderProfileSubscriptions();
+            if (typeof renderProfilePending === "function") renderProfilePending();
+            return data.user;
+        }
+
+        function openProductImagePreview() {
+            const source = document.getElementById("modal-prod-img");
+            const target = document.getElementById("product-image-large");
+            const title = document.getElementById("product-image-title");
+            if (!source || !target) return;
+            target.src = source.src || "";
+            if (title) title.textContent = document.getElementById("modal-prod-name")?.textContent || "Pratinjau Produk";
+            document.getElementById("product-image-modal")?.classList.remove("hidden");
+        }
+        function closeProductImagePreview(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById("product-image-modal")?.classList.add("hidden");
+        }
+
+        function openAdminUserDetail(index) {
+            const user = window.__adminUsers?.[index];
+            if (!user) return;
+            window.__adminDetailUserIndex = index;
+            renderAdminUserDetail(index);
+            document.getElementById("admin-user-detail-overlay")?.classList.remove("hidden");
+        }
+
+        function adminSubscriptionRemaining(sub) {
+            if (!sub) return 0;
+            if (sub.status === "inactive") return Math.max(0, Number(sub.pausedRemainingMs) || 0);
+            if (!sub.expiresAt) return Infinity;
+            return Math.max(0, new Date(sub.expiresAt).getTime() - Date.now());
+        }
+
+        function renderAdminUserDetail(index) {
+            const user = window.__adminUsers?.[index];
+            const box = document.getElementById("admin-detail-content");
+            if (!user || !box) return;
+            document.getElementById("admin-detail-title").textContent = `@${user.username || "user"}`;
+            const subs = Array.isArray(user.subscriptions) ? user.subscriptions : [];
+            box.innerHTML = `
+                <div class="admin-detail-section">
+                    <div style="display:flex;align-items:center;gap:11px;"><div class="profile-avatar" style="width:52px;height:52px;overflow:hidden;">${user.avatar ? `<img src="${escapeHtml(user.avatar)}" alt="" style="width:100%;height:100%;object-fit:cover;">` : escapeHtml(String(user.displayName || user.username || "U").slice(0,1).toUpperCase())}</div><div><strong>${escapeHtml(user.displayName || user.username || "-")}</strong><div style="font-size:.64rem;color:var(--text-muted);margin-top:3px;">${escapeHtml(user.email || user.phone || "-")}</div></div></div>
+                    <div class="admin-detail-row"><span>Total item</span><b>${Number(user.totalItemsBought || 0)}</b></div>
+                    <div class="admin-detail-row"><span>Total pengeluaran</span><b>${rupiah(user.totalMoneySpent || 0)}</b></div>
+                    <div class="admin-detail-row"><span>Reseller</span><button class="admin-mini-btn ${user.reseller ? 'accent' : ''}" type="button" onclick="toggleAdminReseller(${index},${!user.reseller})">${user.reseller ? 'Aktif' : 'Nonaktif'}</button></div>
+                </div>
+                <div class="admin-detail-section">
+                    <div style="display:flex;justify-content:space-between;align-items:center;"><strong>Langganan (${subs.length})</strong><span style="font-size:.6rem;color:var(--text-muted);">Sisa waktu dihitung dari expiresAt</span></div>
+                    ${subs.length ? subs.map(sub => {
+                        const rem = adminSubscriptionRemaining(sub);
+                        const remText = rem === Infinity ? 'Lifetime' : formatDurationMs(rem);
+                        return `<div style="margin-top:9px;padding:11px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);"><div style="display:flex;justify-content:space-between;gap:8px;"><div><strong style="font-size:.7rem;">${escapeHtml(sub.productName || 'Produk')}</strong><small style="display:block;color:var(--text-muted);font-size:.6rem;margin-top:2px;">${escapeHtml(sub.typeName || '')}</small></div><span style="font-size:.62rem;color:${sub.status === 'inactive' ? '#ff9b9b' : 'var(--accent)'};">${escapeHtml(remText)}</span></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;"><button class="admin-mini-btn" type="button" onclick="toggleAdminSubscription(${index},'${escapeHtml(sub.id)}',${sub.status === 'inactive'})">${sub.status === 'inactive' ? 'Aktifkan' : 'Pause'}</button><button class="admin-mini-btn" type="button" onclick="adjustAdminSubscription(${index},'${escapeHtml(sub.id)}',1440)">+1 hari</button><button class="admin-mini-btn" type="button" onclick="editAdminSubscriptionName(${index},'${escapeHtml(sub.id)}')">Edit</button><button class="admin-mini-btn danger" type="button" onclick="deleteAdminSubscription(${index},'${escapeHtml(sub.id)}')">Hapus</button></div></div>`;
+                    }).join('') : '<div class="admin-config-note" style="margin-top:10px;">User belum memiliki langganan.</div>'}
+                </div>
+                <div class="admin-detail-section"><strong>Edit data</strong><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px;"><button class="admin-mini-btn" onclick="toggleAdminFieldEditor('displayName','text')">Nama</button><button class="admin-mini-btn" onclick="toggleAdminFieldEditor('avatar','text')">Avatar</button><button class="admin-mini-btn" onclick="toggleAdminFieldEditor('totalItemsBought','number')">Total item</button><button class="admin-mini-btn" onclick="toggleAdminFieldEditor('totalMoneySpent','number')">Total pengeluaran</button><button class="admin-mini-btn" onclick="toggleAdminFieldEditor('password','password')">Password</button></div></div>`;
+        }
+
+        async function loadAdminPendingPurchases() {
+            const box = document.getElementById("admin-pending-list");
+            if (!box) return;
+            box.innerHTML = '<div class="admin-config-note">Memuat pesanan...</div>';
+            try {
+                const data = await adminApi("admin-purchases");
+                const purchases = Array.isArray(data.purchases) ? data.purchases : [];
+                if (!purchases.length) { box.innerHTML = `<div class="admin-config-note">${escapeHtml(t("pending_empty"))}</div>`; return; }
+                box.innerHTML = purchases.map((p, i) => `<div class="admin-pending-card"><strong>@${escapeHtml(p.username || 'user')}</strong><small style="display:block;color:var(--text-muted);margin-top:4px;">${escapeHtml(p.userEmail || p.userPhone || '-')} · ${escapeHtml(new Date(p.createdAt).toLocaleString('id-ID'))}</small><div style="margin-top:8px;font-size:.66rem;">${(p.items || []).map(item => `${escapeHtml(item.productName)} — ${escapeHtml(item.typeName)} × ${Number(item.quantity || 0)}`).join('<br>')}</div><div style="margin-top:8px;font-weight:700;">${rupiah(p.totalSpent || 0)}</div><div class="pending-actions"><button class="admin-mini-btn" onclick="adminPurchaseAction('${escapeHtml(p.userId)}','${escapeHtml(p.id)}','confirm')">Konfirmasi</button><button class="admin-mini-btn danger" onclick="adminPurchaseAction('${escapeHtml(p.userId)}','${escapeHtml(p.id)}','reject')">Tolak</button></div></div>`).join("");
+            } catch (error) { box.innerHTML = `<div style="color:#ff7b7b;font-size:.68rem;">${escapeHtml(error.message)}</div>`; }
+        }
+
+        async function adminPurchaseAction(userId, purchaseId, action) {
+            try {
+                const data = await adminApi("admin-purchases", { method:"PATCH", body:{ userId, purchaseId, action } });
+                showToast(data.message || "Pesanan diperbarui.");
+                await loadAdminPendingPurchases();
+                await loadUserTableForAdmin();
+            } catch (error) { iosAlert(error.message); }
+        }
+
         // ===== PATCH: PROFILE, PRODUCT ACTIONS, REAL STOCK, BATTERY & JAKARTA CLOCK =====
         let avatarCropper = null;
         let avatarObjectUrl = "";
+
+        function openAvatarPicker() { document.getElementById("avatar-file-input")?.click(); }
+        async function handleAvatarFile(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            if (!file.type.startsWith("image/")) { iosAlert("File avatar harus berupa gambar."); return; }
+            if (file.size > 3 * 1024 * 1024) { iosAlert("Ukuran avatar maksimal 3 MB."); return; }
+            try {
+                const reader = new FileReader();
+                reader.onload = async () => {
+                    try {
+                        const url = await uploadImage(String(reader.result || ""), "avatar");
+                        const data = await apiRequest("/update-user", { method:"POST", body:JSON.stringify({ action:"avatar", avatar:url }) });
+                        saveUserSession(data.user, localStorage.getItem("auth_token"));
+                        updateProfileDashboard();
+                        showToast("Foto profil berhasil diperbarui.");
+                    } catch (error) { iosAlert(error.message || "Gagal memperbarui foto profil."); }
+                };
+                reader.readAsDataURL(file);
+            } finally { event.target.value = ""; }
+        }
+        async function removeAvatar() {
+            try {
+                const data = await apiRequest("/update-user", { method:"POST", body:JSON.stringify({ action:"avatar", avatar:"" }) });
+                saveUserSession(data.user, localStorage.getItem("auth_token"));
+                updateProfileDashboard();
+                showToast("Foto profil dihapus.");
+            } catch (error) { iosAlert(error.message || "Gagal menghapus foto profil."); }
+        }
+        function closeAvatarCrop() { avatarCropper?.destroy?.(); avatarCropper=null; if(avatarObjectUrl) { URL.revokeObjectURL(avatarObjectUrl); avatarObjectUrl=""; } }
+        function saveCroppedAvatar() { closeAvatarCrop(); }
 
         let subscriptionTimer = null;
         let batteryManager = null;
@@ -4495,7 +4710,7 @@ function currentSessionUser(){try{return JSON.parse(localStorage.getItem("curren
 function supportSubscriptions(){const u=currentSessionUser();return Array.isArray(u?.subscriptions)?u.subscriptions:[]}
 function purchaseForSubscription(user,sub){return (user?.pendingPurchases||[]).find(p=>p.id===sub.purchaseId)||null}
 function serviceFeeForUsedDays(days){const d=Math.max(0,Number(days)||0);if(d>=30)return .3;if(d>=21)return .4;if(d>=7)return .5;return .6}
-function refundCalc(price,totalDays,purchaseDate,asOf=new Date()){const total=Math.max(0,Number(totalDays)||0);const start=new Date(purchaseDate);const used=Math.max(0,(asOf-start)/86400000);const remaining=Math.max(0,total-used);const fee=serviceFeeForUsedDays(used);const refund=Math.max(0,Number(price)||0)*(remaining/Math.max(total,1))*fee;return {price:Number(price)||0,totalDays:total,usedDays:used,remainingDays:remaining,serviceFee:fee,refund}}
+function refundCalc(price,totalDays,purchaseDate,asOf=new Date()){const total=Math.max(0,Number(totalDays)||0);const start=new Date(purchaseDate);const end=asOf instanceof Date?asOf:new Date(asOf);const used=Math.max(0,Number.isFinite(start.getTime())&&Number.isFinite(end.getTime())?(end-start)/86400000:0);const remaining=total>0?Math.max(0,total-used):0;const fee=serviceFeeForUsedDays(used);const refund=total>0?Math.max(0,Number(price)||0)*(remaining/total)*fee:0;return {price:Number(price)||0,totalDays:total,usedDays:used,remainingDays:remaining,serviceFee:fee,refund}}
 function rupiah(n){return `Rp${Math.round(Number(n)||0).toLocaleString("id-ID")}`}
 function closeSupportModal(e){if(e&&e.target!==e.currentTarget)return;document.getElementById("support-modal-overlay")?.classList.add("hidden")}
 function openSupportModal(title,html){document.getElementById("support-modal-title").textContent=title;document.getElementById("support-modal-content").innerHTML=html;document.getElementById("support-modal-overlay")?.classList.remove("hidden")}
@@ -4510,7 +4725,7 @@ function selectedRefundData(){const u=currentSessionUser();const sub=supportSubs
 function recalculateRefund(){const box=document.getElementById("refund-result");if(!box)return;const {sub,price,calc}=selectedRefundData();if(!sub){box.textContent="Tidak ada produk aktif.";return}box.innerHTML=`<b>${escapeHtml(sub.productName||"Produk")}</b><br>Harga beli: <b>${rupiah(price)}</b><br>Total durasi premium: <b>${calc.totalDays.toFixed(2)} hari</b><br>Durasi terpakai: <b>${calc.usedDays.toFixed(2)} hari</b><br>Sisa durasi: <b>${calc.remainingDays.toFixed(2)} hari</b><br>Service fee: <b>${calc.serviceFee}</b><br><br><strong>Refund: ${rupiah(calc.refund)}</strong>`}
 async function submitRefundRequest(){try{const {sub,p,calc}=selectedRefundData();if(!sub||!p)throw new Error("Produk pembelian tidak ditemukan.");const d=await apiRequest("/support",{method:"POST",body:JSON.stringify({type:"refund",purchaseId:p.id,subscriptionId:sub.id})});closeSupportModal();showToast(`Refund diajukan: ${rupiah(calc.refund)}`);saveUserSession(d.user,localStorage.getItem("auth_token"))}catch(e){iosAlert(e.message||"Gagal mengajukan refund.")}}
 function openDurationTool(){const u=currentSessionUser();openSupportModal("Cek Sisa Durasi",`<div class="support-form-grid"><label>Produk<select id="d-product" onchange="syncDurationTool()">${subscriptionSelectOptions()}</select></label><label>Tanggal pembelian<input id="d-purchase-date" type="date" onchange="syncDurationTool()"></label><label>Tanggal hari ini<input id="d-today-date" type="date" readonly></label><div id="duration-result" class="support-result"></div></div>`);const today=new Date();document.getElementById("d-today-date").value=today.toISOString().slice(0,10);syncDurationTool()}
-function syncDurationTool(){const u=currentSessionUser();const sub=supportSubscriptions()[Number(document.getElementById("d-product")?.value)||0];const p=purchaseForSubscription(u,sub);const pd=document.getElementById("d-purchase-date");if(pd&&!pd.value&&p?.createdAt)pd.value=new Date(p.createdAt).toISOString().slice(0,10);const today=document.getElementById("d-today-date")?.value;const box=document.getElementById("duration-result");if(!box||!sub)return;const total=Number(sub.durationDays||0);const calc=refundCalc(0,total,pd?.value||p?.createdAt,today?new Date(`${today}T23:59:59`):new Date());box.innerHTML=`Total durasi: <b>${total||"Lifetime"} hari</b><br>Dipakai: <b>${calc.usedDays.toFixed(2)} hari</b><br>Sisa durasi: <b>${calc.remainingDays.toFixed(2)} hari</b><br>Service fee saat ini: <b>${calc.serviceFee}</b>`}
+function syncDurationTool(){const u=currentSessionUser();const sub=supportSubscriptions()[Number(document.getElementById("d-product")?.value)||0];const p=purchaseForSubscription(u,sub);const pd=document.getElementById("d-purchase-date");if(pd&&!pd.value&&p?.createdAt)pd.value=new Date(p.createdAt).toISOString().slice(0,10);const today=document.getElementById("d-today-date")?.value;const box=document.getElementById("duration-result");if(!box||!sub)return;const total=Number(sub.durationDays||p?.items?.find(i=>String(i.productName)===String(sub.productName)&&String(i.typeName)===String(sub.typeName))?.durationDays||0);if(!total){box.innerHTML='<b>Lifetime</b><br>Produk ini tidak memiliki batas durasi.';return;}const startKey=pd?.value||new Date(p?.createdAt||Date.now()).toISOString().slice(0,10);const endKey=today||new Date().toISOString().slice(0,10);const start=new Date(`${startKey}T00:00:00`);const end=new Date(`${endKey}T00:00:00`);const used=Math.max(0,(end-start)/86400000);const remaining=Math.max(0,total-used);const fee=serviceFeeForUsedDays(used);box.innerHTML=`Total durasi: <b>${total.toFixed(2)} hari</b><br>Dipakai: <b>${used.toFixed(2)} hari</b><br>Sisa durasi: <b>${remaining.toFixed(2)} hari</b><br>Service fee saat ini: <b>${fee}</b>`}
 async function enableBrowserNotifications(){try{if(!('Notification' in window)){iosAlert('Browser ini belum mendukung notifikasi web.');return}const p=await Notification.requestPermission();if(p!=='granted'){iosAlert('Izin notifikasi belum diberikan. Aktifkan dari pengaturan situs/browser.');return}if('serviceWorker' in navigator)await navigator.serviceWorker.register('/sw.js');showToast('Notifikasi browser aktif.')}catch(e){iosAlert('Gagal mengaktifkan notifikasi: '+e.message)}}
 async function notifyNewInbox(messages){if(!Array.isArray(messages)||!messages.length)return;const sig=messages.map(m=>m.id).join('|');if(!lastInboxSignature){lastInboxSignature=sig;return}const old=new Set(lastInboxSignature.split('|'));const fresh=messages.filter(m=>m.id&&!old.has(m.id)&&m.read!==true);lastInboxSignature=sig;if(!fresh.length)return;if(!('Notification' in window)||Notification.permission!=='granted')return;for(const m of fresh.slice(0,3)){try{if(navigator.serviceWorker?.controller){const reg=await navigator.serviceWorker.ready;await reg.showNotification(m.title||'RYY STORE',{body:m.body||'Ada pesan baru dari admin.',icon:'/favicon.ico',tag:'ryy-inbox-'+m.id});}else new Notification(m.title||'RYY STORE',{body:m.body||'Ada pesan baru dari admin.'})}catch(_){}}}
 async function pollInboxNotifications(){try{const d=await apiRequest('/inbox');const old=currentSessionUser();await notifyNewInbox(d.inbox||[]);if(old){localStorage.setItem('current_user',JSON.stringify({...old,inbox:d.inbox||old.inbox||[]}));updateInboxBadge()}}catch(_){}}
