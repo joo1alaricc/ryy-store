@@ -35,6 +35,38 @@
       "reseller": false,
       "pendingPurchases": [
         {
+          "id": "purchase_f987e536-dd4e-44f8-b59a-cd6c8e831e20",
+          "status": "pending",
+          "createdAt": "2026-08-22T11:02:26.377Z",
+          "targetPhone": "083878301449",
+          "paymentMethod": "QRIS",
+          "reseller": false,
+          "totalItems": 2,
+          "totalSpent": 20000,
+          "items": [
+            {
+              "id": 3,
+              "productName": "CapCut Premium",
+              "typeName": "Sharing 7 Hari",
+              "quantity": 1,
+              "priceOriginal": 5000,
+              "priceFinal": 5000,
+              "durationDays": 7
+            },
+            {
+              "id": 4,
+              "productName": "Gemini Pro",
+              "typeName": "Pro 18 Bulan",
+              "quantity": 1,
+              "priceOriginal": 15000,
+              "priceFinal": 15000,
+              "durationDays": 547
+            }
+          ],
+          "proofUrl": "https://qu.ax/F4oug",
+          "formResponses": {}
+        },
+        {
           "id": "purchase_3f6e4308-1583-4428-8a19-2a94b6f410cb",
           "status": "confirmed",
           "createdAt": "2026-08-21T12:59:24.079Z",
@@ -122,7 +154,17 @@
           "purchaseId": "purchase_3f6e4308-1583-4428-8a19-2a94b6f410cb"
         }
       ],
-      "inbox": [],
+      "inbox": [
+        {
+          "id": "msg_0511c6db-738f-409e-ad7f-315f78b39635",
+          "type": "info",
+          "read": false,
+          "createdAt": "2026-08-22T11:02:26.377Z",
+          "title": "Pesanan masuk sesi menunggu",
+          "body": "Bukti pembayaran berhasil diterima. Pesanan Anda sedang menunggu pemeriksaan admin.",
+          "purchaseId": "purchase_f987e536-dd4e-44f8-b59a-cd6c8e831e20"
+        }
+      ],
       "supportRequests": []
     },
     {
