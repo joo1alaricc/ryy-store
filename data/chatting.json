@@ -21,9 +21,18 @@
           "createdAt": "2026-08-22T08:21:38.656Z",
           "readByUser": true,
           "readByAdmin": true
+        },
+        {
+          "id": "chat_020997e0-f025-4867-b917-56dbce09fff0",
+          "sender": "user",
+          "senderName": "ryydigitalstore",
+          "text": "hai",
+          "createdAt": "2026-08-22T11:01:16.073Z",
+          "readByUser": true,
+          "readByAdmin": false
         }
       ],
-      "updatedAt": "2026-08-22T08:21:38.656Z"
+      "updatedAt": "2026-08-22T11:01:16.073Z"
     }
   }
 }
