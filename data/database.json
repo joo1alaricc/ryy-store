@@ -198,17 +198,7 @@
           "purchaseId": "purchase_3f6e4308-1583-4428-8a19-2a94b6f410cb"
         }
       ],
-      "inbox": [
-        {
-          "id": "msg_0511c6db-738f-409e-ad7f-315f78b39635",
-          "type": "info",
-          "read": true,
-          "createdAt": "2026-08-22T11:02:26.377Z",
-          "title": "Pesanan masuk sesi menunggu",
-          "body": "Bukti pembayaran berhasil diterima. Pesanan Anda sedang menunggu pemeriksaan admin.",
-          "purchaseId": "purchase_f987e536-dd4e-44f8-b59a-cd6c8e831e20"
-        }
-      ],
+      "inbox": [],
       "supportRequests": []
     },
     {
@@ -340,51 +330,7 @@
           }
         }
       ],
-      "inbox": [
-        {
-          "id": "msg_9a1352ec-51c4-405e-bdd2-83ed3ba2eea9",
-          "type": "success",
-          "read": false,
-          "createdAt": "2026-08-21T13:06:25.662Z",
-          "title": "Data produk sudah dikirim",
-          "body": "Data berhasil di kirim ke pithmedia.id@gmail.com, silakan cek.",
-          "purchaseId": "purchase_ad08cd7c-1372-466c-9df9-01bbf6e36fa1"
-        },
-        {
-          "id": "msg_3456376f-77b4-4559-a866-bb169a282570",
-          "type": "success",
-          "read": false,
-          "createdAt": "2026-08-21T13:06:23.486Z",
-          "title": "Pesanan berhasil dikonfirmasi",
-          "body": "Pesanan Anda berhasil dikonfirmasi oleh admin.",
-          "purchaseId": "purchase_ad08cd7c-1372-466c-9df9-01bbf6e36fa1"
-        },
-        {
-          "id": "msg_0de1b489-8980-4fb4-abe1-ed0edb683333",
-          "type": "form",
-          "read": false,
-          "createdAt": "2026-08-21T13:01:05.562Z",
-          "title": "Lengkapi data pesanan",
-          "body": "Admin meminta Anda melengkapi data berikut. Tekan tombol di bawah untuk mengisi form.",
-          "purchaseId": "purchase_ad08cd7c-1372-466c-9df9-01bbf6e36fa1",
-          "fields": [
-            {
-              "key": "email",
-              "label": "Email"
-            }
-          ],
-          "responded": false
-        },
-        {
-          "id": "msg_f7611ca8-6b41-4012-9264-219eecc28131",
-          "type": "info",
-          "read": true,
-          "createdAt": "2026-08-21T12:44:27.582Z",
-          "title": "Pesanan masuk sesi menunggu",
-          "body": "Bukti pembayaran berhasil diterima. Pesanan Anda sedang menunggu pemeriksaan admin.",
-          "purchaseId": "purchase_ad08cd7c-1372-466c-9df9-01bbf6e36fa1"
-        }
-      ],
+      "inbox": [],
       "supportRequests": []
     },
     {
